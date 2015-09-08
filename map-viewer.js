@@ -6,28 +6,63 @@ $.Viewer = function(options) {
   
   this.view = {
     level: 13,
-    offsetX: 500,
-    offsetY: 500,
+    offsetX: 0,
+    offsetY: 0,
     width: 0,
     height: 0
   }
   
-  var canvas = $.createElement('canvas', {
-    className: 'layer',
-  }, this.element);
-  var context = canvas.getContext('2d');
+  $.setProperties(options.element.style, {
+    overflow: 'hidden',
+  });
+
+  // Get the various elements to work with.  
+  var layers = this.element.querySelector('.layers');
+  var tileLayer = layers; // for now.
+  options.tileLayer = tileLayer;
   
-  this.tiledMap = new $.TiledMapDeepZoom(options.mapInfo);
+  var renderer = new $.ImageRenderer();
+  var tiledMap = new $.TiledMapDeepZoom();
+  
+  // Initialize the tile source
+  tiledMap.load(options.mapInfo, function(mapSource){
+    $.setProperties(layers.style, {
+      width: mapSource.width + 'px',
+      height: mapSource.height + 'px',
+      position: 'absolute',
+    });
+    
+    // Initilize the renderer
+    options.mapWidth = mapSource.width;
+    options.mapHeight = mapSource.height;
+    renderer.initialize(options);
+  });
+  
+  // Initialize the mouse event handler
   this.mouseInput = new $.MouseInput(options.element);
   
   this.mouseInput.addEventListener('drag', function(event) {
-    console.log(event);
-  });
+    
+    this.view.offsetX -= event.delta.x;
+    this.view.offsetY -= event.delta.y;
+    
+    // Keep the position within the ranges, so the map doesn't get lost.
+    this.view.offsetX = Math.range(this.view.offsetX, 0, tiledMap.source.width - this.view.width);
+    this.view.offsetY = Math.range(this.view.offsetY, 0, tiledMap.source.height - this.view.height);
+
+    // Position the layers container.
+    $.setProperties(layers.style, {
+      left: '-' + this.view.offsetX + 'px',
+      top: '-' + this.view.offsetY + 'px',
+    });
   
-  this.draw = function() {
-    this.tiledMap.draw(this.view, function(tile) {
-      context.drawImage(tile.image, tile.x, tile.y); 
-    }.bind(this));
+    
+    this.render();
+    
+  }.bind(this));
+  
+  this.render = function() {
+    tiledMap.getTiles(this.view, renderer.renderTile);
   };
 
   this.elementResized = (function(){
@@ -35,9 +70,9 @@ $.Viewer = function(options) {
     var height = this.element.clientHeight;
     this.view.width = width;
     this.view.height = height;
-    canvas.width = width;
-    canvas.height = height;
-    this.draw();
+
+    this.render();
+    
   }).bind(this);
   
   window.addEventListener('resize', this.elementResized);

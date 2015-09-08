@@ -22,10 +22,4 @@ $.createElement = function(tagName, properties, parent) {
   return element;
 }
 
-/*$.getElementSize = function(element) {
-  return new $.Point(element.clientWidth, element.clientHeight);
-  );
-}*/
-
-
 })(BigMap);
