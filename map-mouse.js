@@ -54,6 +54,18 @@ $.MouseInput = function(element) {
       _this.events.fireEvent('click', event);  
     }
   }, true);
+  
+  element.addEventListener('wheel', function(event){
+    var delta = event.wheelDelta || event.wheelDeltaY;
+    if (delta == 0) return;
+    
+    delta = delta > 0 ? 1 : -1;
+    
+    event.direction = delta;
+    
+    _this.events.fireEvent('zoom', event);
+    
+  }, true);
       
 }
 

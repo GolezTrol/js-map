@@ -9,7 +9,8 @@ $.Viewer = function(options) {
     offsetX: 0,
     offsetY: 0,
     width: 0,
-    height: 0
+    height: 0,
+    zoom: 100,
   }
   
   $.setProperties(options.element.style, {
@@ -56,6 +57,18 @@ $.Viewer = function(options) {
       top: '-' + this.view.offsetY + 'px',
     });
   
+    
+    this.render();
+    
+  }.bind(this));
+  
+  this.mouseInput.addEventListener('zoom', function(event) {
+    
+    this.view.zoom = this.view.zoom + event.direction * 10;
+    
+    this.view.zoom = Math.range(this.view.zoom, 10, 200);
+    
+    console.log(this.view.zoom);
     
     this.render();
     
