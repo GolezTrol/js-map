@@ -31,6 +31,13 @@ $.TiledMapDeepZoom = function() {
   
   this.getTiles = function(view, callback) {
     // Determine the range of tiles to load.
+    var factor =  100.0 / view.zoom;
+    var level = view.level;
+    console.log(level);
+    
+    var tileSize = this.source.tileSize * factor;
+    var imageSize = this.source.imageSize * factor;
+    
     var tileX = Math.floor(view.offsetX / this.source.tileSize);
     var tileOffsetX = -(view.offsetX % this.source.tileSize);
     var tileCountX = Math.ceil((view.width - tileOffsetX) / (this.source.tileSize));
@@ -45,21 +52,25 @@ $.TiledMapDeepZoom = function() {
       
         // Try to find the tile in the cache.
         var tile = null;
-        if (view.level in this.tiles) {
-          if (x in this.tiles[view.level]) {
-            if (y in this.tiles[view.level][x]) {
-              tile = this.tiles[view.level][x][y];
+        if (level in this.tiles) {
+          if (x in this.tiles[level]) {
+            if (y in this.tiles[level][x]) {
+              tile = this.tiles[level][x][y];
             }
           }
         }
+        
+        // To do: Make a better estimation of what the image size will be based on the level to load and the full dimensions of the image.
         if (tile == null) {
           // Tile not found in the cache. Create a new one.
           tile = {
             image: new Image(),
-            x: x * (this.source.tileSize),
-            y: y * (this.source.tileSize),
-            level: view.level,
+            x: x * tileSize,
+            y: y * tileSize,
+            level: level,
             loaded: false,
+            width: imageSize,
+            height: imageSize,
           }
 
           // Image is prepared. Pre-render it already
@@ -68,13 +79,15 @@ $.TiledMapDeepZoom = function() {
           // Load the image.
           tile.image.addEventListener('load', (function(tile) {
             tile.loaded = true;
+            tile.width = tile.image.width;
+            tile.height = tile.image.height;
             callback(tile); // Send to the renderer again, just in case
           }).bind(this, tile));
-          tile.image.src = this.getTilePath(view.level, x, y);
+          tile.image.src = this.getTilePath(level, x, y);
           
-          this.tiles[view.level] = this.tiles[view.level] || [];
-          this.tiles[view.level][x] = this.tiles[view.level][x] || [];
-          this.tiles[view.level][x][y] = tile; // Cache. Desirable?
+          this.tiles[level] = this.tiles[level] || [];
+          this.tiles[level][x] = this.tiles[level][x] || [];
+          this.tiles[level][x][y] = tile; // Cache. Desirable?
         } else {
           // Nothing to do here?
           /*// Tile found in the cache. If it's loaded, draw it, otherwise, it will draw itself once the load event fires.

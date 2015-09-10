@@ -9,13 +9,18 @@ $.ImageRenderer = function() {
   
   // Default behaviour for rendering a tile: add the image to the tile layer.
   this.renderTile = function(tile) {
-    if (tile.rendered) return; // Flag the image, so it is added only once.
+    //if (tile.rendered) return; // Flag the image, so it is added only once.
     
     $.setProperties(tile.image.style, {
       position: 'absolute',
       left: tile.x + 'px',
       top: tile.y + 'px',
+      width: tile.width + 'px',
+      height: tile.height + 'px',
+      zIndex: tile.level,
     });
+    
+    tile.image.classList.add('level' + tile.level);
     
     this.tileLayer.appendChild(tile.image);
     
@@ -48,7 +53,7 @@ $.ImageRenderer = function() {
     
       // Overrule the rendering of tiles.
       this.renderTile = function(tile) {
-        context.drawImage(tile.image, tile.x, tile.y); 
+        context.drawImage(tile.image, tile.x, tile.y, tile.width, tile.height); 
       };
     }
   }.bind(this);

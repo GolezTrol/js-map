@@ -13,14 +13,15 @@ $.Viewer = function(options) {
     zoom: 100,
   }
   
-  $.setProperties(options.element.style, {
-    overflow: 'hidden',
-  });
-
   // Get the various elements to work with.  
   var layers = this.element.querySelector('.layers');
   var tileLayer = layers; // for now.
   options.tileLayer = tileLayer;
+  
+  // Give them at least the style required to make it work well
+  options.element.style.overflow = 'hidden';
+  layers.style.transformOrigin = '0 0';
+
   
   var renderer = new $.ImageRenderer();
   var tiledMap = new $.TiledMapDeepZoom();
@@ -52,11 +53,8 @@ $.Viewer = function(options) {
     this.view.offsetY = Math.range(this.view.offsetY, 0, tiledMap.source.height - this.view.height);
 
     // Position the layers container.
-    $.setProperties(layers.style, {
-      left: '-' + this.view.offsetX + 'px',
-      top: '-' + this.view.offsetY + 'px',
-    });
-  
+    layers.style.left = '-' + this.view.offsetX + 'px';
+    layers.style.top = '-' + this.view.offsetY + 'px';
     
     this.render();
     
@@ -64,9 +62,15 @@ $.Viewer = function(options) {
   
   this.mouseInput.addEventListener('zoom', function(event) {
     
-    this.view.zoom = this.view.zoom + event.direction * 10;
+    var delta = event.direction * 10;
     
+    this.view.zoom = this.view.zoom + delta;
     this.view.zoom = Math.range(this.view.zoom, 10, 200);
+    
+    this.view.level = Math.ceil(14 - (100 / this.view.zoom));
+    this.view.level = Math.range(this.view.level, 8, 13);
+
+    layers.style.transform = "scale(" + (this.view.zoom / 100) + ")";
     
     console.log(this.view.zoom);
     
@@ -75,6 +79,16 @@ $.Viewer = function(options) {
   }.bind(this));
   
   this.render = function() {
+    for (var i = 0; i <= this.view.level; i++) {
+      this.element.querySelectorAll('.level' + i).forEach(function(element, index, list){
+        element.style.display = 'block';
+      });
+    }
+    for (var i = this.view.level + 1; i <= 13; i++) {
+      this.element.querySelectorAll('.level' + i).forEach(function(element, index, list){
+        element.style.display = 'none';
+      });
+    }
     tiledMap.getTiles(this.view, renderer.renderTile);
   };
 
