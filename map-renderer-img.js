@@ -61,7 +61,14 @@ $.ImageRenderer = function() {
     
       // Overrule the rendering of tiles.
       this.renderTile = function(tile) {
-        context.drawImage(tile.image, tile.x, tile.y, tile.width, tile.height); 
+        if (tile.rendered) {
+          context.drawImage(tile.image, tile.x, tile.y, tile.image.width * tile.scaleFactor, tile.height * tile.scaleFactor);
+        } else {
+          tile.image.addEventListener('load', function(){
+            tile.rendered = true;
+            context.drawImage(tile.image, tile.x, tile.y, tile.image.width * tile.scaleFactor, tile.height * tile.scaleFactor); 
+          });
+        }
       };
     }
   }.bind(this);

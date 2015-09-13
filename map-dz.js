@@ -87,19 +87,18 @@ $.TiledMapDeepZoom = function() {
             tile.loaded = true;
             tile.width = tile.image.width;
             tile.height = tile.image.height;
-            callback(tile); // Send to the renderer again, just in case
+            callback(tile); // Send to the renderer again.
           }).bind(this, tile));
           tile.image.src = this.getTilePath(level, x, y);
           
           this.tiles[level] = this.tiles[level] || [];
           this.tiles[level][x] = this.tiles[level][x] || [];
-          this.tiles[level][x][y] = tile; // Cache. Desirable?
+          this.tiles[level][x][y] = tile; // Cache. Desirable? Or let browser cache handle this?
         } else {
-          // Nothing to do here?
-          /*// Tile found in the cache. If it's loaded, draw it, otherwise, it will draw itself once the load event fires.
+          // Tile found in the cache. If it's loaded, draw it, otherwise, it will draw itself once the load event fires.
           if (tile.loaded) {
             callback(tile);
-          }*/
+          }
         }
       }
     }
