@@ -5,3 +5,7 @@ NodeList.prototype.forEach = NodeList.prototype.forEach || function(callback, th
     callback.call(thisArg, this[i], i, this);
   }
 }
+
+Math.range = function(a, min, max) {
+  return Math.min(Math.max(a, min), max);
+}
