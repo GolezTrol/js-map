@@ -5,6 +5,7 @@ $.Viewer = function(options) {
   this.element = options.element;
   
   this.view = {
+    maxLevel: 13,
     level: 13,
     offsetX: 0,
     offsetY: 0,
@@ -38,7 +39,11 @@ $.Viewer = function(options) {
     options.mapWidth = mapSource.width;
     options.mapHeight = mapSource.height;
     renderer.initialize(options);
-  });
+    
+    // Set the view parameters
+    this.view.maxLevel = mapSource.maxLevel;
+    this.view.minLevel = mapSource.minLevel;
+  }.bind(this));
   
   // Initialize the mouse event handler
   this.mouseInput = new $.MouseInput(options.element);
@@ -67,12 +72,16 @@ $.Viewer = function(options) {
     this.view.zoom = this.view.zoom + delta;
     this.view.zoom = Math.range(this.view.zoom, 10, 200);
     
-    this.view.level = Math.ceil(14 - (100 / this.view.zoom));
-    this.view.level = Math.range(this.view.level, 8, 13);
+    // To do: Let the TiledMap loader handle the translation from 0..x to 13..8
+    var zoomFactor = 100 / this.view.zoom;
+    // Translate to a zoom level (0 = 100%, 1 = 50%, etc.
+    var scaleFactor = Math.log(zoomFactor) / Math.log(2);
+    // Translate that to the ranges of the DZ.
+    this.view.level = Math.round(this.view.maxLevel - scaleFactor);
+    
+    this.view.level = Math.range(this.view.level, this.view.minLevel, this.view.maxLevel);
 
     layers.style.transform = "scale(" + (this.view.zoom / 100) + ")";
-    
-    console.log(this.view.zoom);
     
     this.render();
     

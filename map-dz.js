@@ -10,6 +10,8 @@ $.TiledMapDeepZoom = function() {
     // Should be read from 'efteling_plattegrond.xml', which should be passed in source.
     $.setProperties(this.source,
       {
+        maxLevel: 13,
+        minLevel: 8,
         folder: 'efteling_plattegrond_files',
         tileSize: 255,
         overlap: 1,
@@ -33,18 +35,21 @@ $.TiledMapDeepZoom = function() {
     // Determine the range of tiles to load.
     var factor =  100.0 / view.zoom;
     var level = view.level;
-    console.log(level);
     
-    var tileSize = this.source.tileSize * factor;
-    var imageSize = this.source.imageSize * factor;
+    var scaleFactor = Math.pow(2, 13 - view.level);
+    
+    var tileSize = this.source.tileSize * scaleFactor;
+    var imageSize = this.source.imageSize * scaleFactor;
+    var viewWidth = view.width * factor;
+    var viewHeight = view.height * factor;
     
     var tileX = Math.floor(view.offsetX / this.source.tileSize);
     var tileOffsetX = -(view.offsetX % this.source.tileSize);
-    var tileCountX = Math.ceil((view.width - tileOffsetX) / (this.source.tileSize));
+    var tileCountX = Math.ceil((viewWidth - tileOffsetX) / (this.source.tileSize));
 
     var tileY = Math.floor(view.offsetY / this.source.tileSize);
     var tileOffsetY = -(view.offsetY % this.source.tileSize);
-    var tileCountY = Math.ceil((view.height - tileOffsetY) / (this.source.tileSize));
+    var tileCountY = Math.ceil((viewHeight - tileOffsetY) / (this.source.tileSize));
     
     // Load and return the tiles.
     for (var x = tileX; x < tileX + tileCountX; x++) {
@@ -71,6 +76,7 @@ $.TiledMapDeepZoom = function() {
             loaded: false,
             width: imageSize,
             height: imageSize,
+            scaleFactor: scaleFactor,
           }
 
           // Image is prepared. Pre-render it already
