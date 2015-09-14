@@ -62,16 +62,14 @@ $.TiledMapDeepZoom = function() {
     
     var tileSize = this.source.tileSize * scaleFactor;
     var imageSize = this.source.imageSize * scaleFactor;
-    var viewWidth = view.width * factor;
-    var viewHeight = view.height * factor;
     
-    var tileX = Math.floor(view.offsetX / tileSize);
-    var tileOffsetX = -(view.offsetX % tileSize);
-    var tileCountX = Math.ceil((view.width - tileOffsetX) / (this.source.tileSize) * factor);
+    var tileX = Math.floor(view.offsetX * factor / tileSize);
+    var distanceToCoverX = ((view.offsetX * factor) % tileSize) + view.width * factor ; 
+    var tileCountX = Math.ceil(distanceToCoverX / tileSize);
     
-    var tileY = Math.floor(view.offsetY / tileSize);
-    var tileOffsetY = -(view.offsetY % tileSize);
-    var tileCountY = Math.ceil((view.height - tileOffsetY) / (this.source.tileSize) * factor) ;
+    var tileY = Math.floor(view.offsetY * factor / tileSize);
+    var distanceToCoverY = ((view.offsetY * factor) % tileSize) + view.height * factor ; 
+    var tileCountY = Math.ceil(distanceToCoverY / tileSize);
     
     // Load and return the tiles.
     for (var x = tileX; x < tileX + tileCountX; x++) {
