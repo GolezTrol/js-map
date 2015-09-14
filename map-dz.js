@@ -36,20 +36,20 @@ $.TiledMapDeepZoom = function() {
     var factor =  100.0 / view.zoom;
     var level = view.level;
     
-    var scaleFactor = Math.pow(2, 13 - view.level);
+    var scaleFactor = Math.pow(2, this.source.maxLevel - view.level);
     
     var tileSize = this.source.tileSize * scaleFactor;
     var imageSize = this.source.imageSize * scaleFactor;
     var viewWidth = view.width * factor;
     var viewHeight = view.height * factor;
     
-    var tileX = Math.floor(view.offsetX / this.source.tileSize);
-    var tileOffsetX = -(view.offsetX % this.source.tileSize);
-    var tileCountX = Math.ceil((viewWidth - tileOffsetX) / (this.source.tileSize));
-
-    var tileY = Math.floor(view.offsetY / this.source.tileSize);
-    var tileOffsetY = -(view.offsetY % this.source.tileSize);
-    var tileCountY = Math.ceil((viewHeight - tileOffsetY) / (this.source.tileSize));
+    var tileX = Math.floor(view.offsetX / tileSize);
+    var tileOffsetX = -(view.offsetX % tileSize);
+    var tileCountX = Math.ceil((view.width - tileOffsetX) / (this.source.tileSize) * factor);
+    
+    var tileY = Math.floor(view.offsetY / tileSize);
+    var tileOffsetY = -(view.offsetY % tileSize);
+    var tileCountY = Math.ceil((view.height - tileOffsetY) / (this.source.tileSize) * factor) ;
     
     // Load and return the tiles.
     for (var x = tileX; x < tileX + tileCountX; x++) {
@@ -78,7 +78,7 @@ $.TiledMapDeepZoom = function() {
             height: imageSize,
             scaleFactor: scaleFactor,
           }
-
+          
           // Image is prepared. Pre-render it already
           callback(tile);
           

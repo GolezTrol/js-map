@@ -5,8 +5,8 @@ $.Viewer = function(options) {
   this.element = options.element;
   
   this.view = {
-    maxLevel: 13,
-    level: 13,
+    maxLevel: 0,
+    level: 0,
     offsetX: 0,
     offsetY: 0,
     width: 0,
@@ -41,6 +41,7 @@ $.Viewer = function(options) {
     renderer.initialize(options);
     
     // Set the view parameters
+    this.view.level = mapSource.maxLevel;
     this.view.maxLevel = mapSource.maxLevel;
     this.view.minLevel = mapSource.minLevel;
   }.bind(this));
@@ -103,7 +104,7 @@ $.Viewer = function(options) {
         element.style.display = 'block';
       });
     }
-    for (var i = this.view.level + 1; i <= 13; i++) {
+    for (var i = this.view.level + 1; i <= this.view.maxLevel; i++) {
       this.element.querySelectorAll('.level' + i).forEach(function(element, index, list){
         element.style.display = 'none';
       });
