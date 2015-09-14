@@ -6,26 +6,45 @@ $.TiledMapDeepZoom = function() {
   this.source = {};
   this.tiles = [];
   
-  this.load = function(source, callback) {
-    // Should be read from 'efteling_plattegrond.xml', which should be passed in source.
-    $.setProperties(this.source,
-      {
-        internalLevels: 13,
-        maxLevel: 4,
-        minLevel: 0,
-        folder: 'efteling_plattegrond_files',
-        tileSize: 255,
-        overlap: 1,
-        imageSize: 256, // size + overlap
-        width: 4795,
-        height: 3374,
-        format: 'jpg',
-      });
+  this.loadFromXML = function(doc) {
+    var source = this.source;
     
-    if (callback) {
-      callback(this.source);
-    }
+    var image = doc.documentElement;
+    source.tileSize = parseInt(image.getAttribute('TileSize'));
+    source.overlap = parseInt(image.getAttribute('Overlap'));
+    source.format = image.getAttribute('Format');
     
+    var size = image.querySelector('Size');
+    source.width = parseInt(size.getAttribute('Width'));
+    source.height = parseInt(size.getAttribute('Height'));
+    
+    var dimension = Math.max(source.width, source.height);
+
+
+    source.internalLevels = Math.ceil(Math.log(dimension) / Math.log(2));
+    source.minLevel = 0;
+    source.maxLevel = 5; //source.internalLevels;
+    
+    source.imageSize = source.tileSize + source.overlap;
+  }
+  
+  this.load = function(url, callback) {
+    var request = new XMLHttpRequest();
+    this.source.folder = url.slice(0, -4) + '_files';
+    request.onreadystatechange = function() {
+      if (request.readyState == 4 /* DONE */) {
+        if (request.responseXML != null) {
+          this.loadFromXML(request.responseXML);
+          if (callback) {
+            callback(this.source);
+          }
+        } else {
+          console.log('No valid response');
+        }
+      }
+    }.bind(this);
+    request.open("GET", url, true);
+    request.send();
   };
   
   this.getTilePath = function(source, level, x, y) {
@@ -34,6 +53,7 @@ $.TiledMapDeepZoom = function() {
   }.bind(this, this.source);
   
   this.getTiles = function(view, callback) {
+  
     // Determine the range of tiles to load.
     var factor =  100.0 / view.zoom;
     var level = view.level;

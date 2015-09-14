@@ -44,6 +44,9 @@ $.Viewer = function(options) {
     this.view.level = mapSource.minLevel;
     this.view.maxLevel = mapSource.maxLevel;
     this.view.minLevel = mapSource.minLevel;
+    
+    // Initial call to get the right dimensions
+    this.elementResized();
   }.bind(this));
   
   // Initialize the mouse event handler
@@ -121,9 +124,6 @@ $.Viewer = function(options) {
   }).bind(this);
   
   window.addEventListener('resize', this.elementResized);
-  
-  // Initial call to get the right dimensions
-  this.elementResized();
 }
 
 
