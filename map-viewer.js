@@ -53,16 +53,7 @@ $.Viewer = function(options) {
     this.view.offsetX -= event.delta.x;
     this.view.offsetY -= event.delta.y;
     
-    // Keep the position within the ranges, so the map doesn't get lost.
-    this.view.offsetX = Math.range(this.view.offsetX, 0, tiledMap.source.width - this.view.width);
-    this.view.offsetY = Math.range(this.view.offsetY, 0, tiledMap.source.height - this.view.height);
-
-    // Position the layers container.
-    layers.style.left = '-' + this.view.offsetX + 'px';
-    layers.style.top = '-' + this.view.offsetY + 'px';
-    
-    this.render();
-    
+    this.changed();
   }.bind(this));
   
   this.mouseInput.addEventListener('zoom', function(event) {
@@ -83,9 +74,28 @@ $.Viewer = function(options) {
 
     layers.style.transform = "scale(" + (this.view.zoom / 100) + ")";
     
-    this.render();
+    this.changed();
     
   }.bind(this));
+  
+  this.constrainPosition = function() {
+    // Keep the position within the ranges, so the map doesn't get lost.
+    var zoomFactor = 100 / this.view.zoom;
+    var maxX = (tiledMap.source.width) / zoomFactor;
+    var maxY = (tiledMap.source.height) / zoomFactor;
+    this.view.offsetX = Math.range(this.view.offsetX, 0, maxX - this.view.width);
+    this.view.offsetY = Math.range(this.view.offsetY, 0, maxY - this.view.height);
+
+    // Position the layers container.
+    layers.style.left = '-' + this.view.offsetX + 'px';
+    layers.style.top = '-' + this.view.offsetY + 'px';
+  }
+  
+  this.changed = function() {
+    this.constrainPosition();
+    
+    this.render();
+  }
   
   this.render = function() {
     for (var i = 0; i <= this.view.level; i++) {
@@ -107,7 +117,7 @@ $.Viewer = function(options) {
     this.view.width = width;
     this.view.height = height;
 
-    this.render();
+    this.changed();
     
   }).bind(this);
   

@@ -7,5 +7,7 @@ NodeList.prototype.forEach = NodeList.prototype.forEach || function(callback, th
 }
 
 Math.range = function(a, min, max) {
+  if (min > max)
+    return Math.min(Math.max(a, max), min);
   return Math.min(Math.max(a, min), max);
 }
