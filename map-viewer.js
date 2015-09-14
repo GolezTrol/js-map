@@ -15,7 +15,8 @@ $.Viewer = function(options) {
   }
   
   // Get the various elements to work with.  
-  var layers = this.element.querySelector('.layers');
+  var viewport = this.element.querySelector('.map');
+  var layers = viewport.querySelector('.layers');
   var tileLayer = layers; // for now.
   options.tileLayer = tileLayer;
   
@@ -61,13 +62,21 @@ $.Viewer = function(options) {
   }.bind(this));
   
   this.mouseInput.addEventListener('zoom', function(event) {
+    // Get the current position based on the event properties.
+    var rect = viewport.getBoundingClientRect();
+    var offsetX = event.clientX ? (event.clientX - rect.left) : rect.width / 2;
+    var offsetY = event.clientY ? (event.clientY - rect.top) : rect.height / 2;
     
+    // Calculate actual pixel coordinates of the map.
+    var mapX = (offsetX + this.view.offsetX) * 100 / this.view.zoom;
+    var mapY = (offsetY + this.view.offsetY) * 100 / this.view.zoom;
+
+    // Do the zooming
     var delta = event.direction * 10;
     
     this.view.zoom = this.view.zoom + delta;
     this.view.zoom = Math.range(this.view.zoom, 10, 200);
     
-    // To do: Let the TiledMap loader handle the translation from 0..x to 13..8
     var zoomFactor = 100 / this.view.zoom;
     // Translate to a zoom level (0 = 100%, 1 = 50%, etc.
     this.view.level = Math.round(Math.log(zoomFactor) / Math.log(2));
@@ -75,7 +84,15 @@ $.Viewer = function(options) {
     this.view.level = Math.range(this.view.level, this.view.minLevel, this.view.maxLevel);
 
     layers.style.transform = "scale(" + (this.view.zoom / 100) + ")";
-    
+
+    // Reposition the map
+    mapX = mapX / 100 * this.view.zoom;
+    this.view.offsetX = mapX - offsetX;
+
+    mapY = mapY / 100 * this.view.zoom;
+    this.view.offsetY = mapY - offsetY;
+     
+    // Redraw
     this.changed();
     
   }.bind(this));
