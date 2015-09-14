@@ -41,7 +41,7 @@ $.Viewer = function(options) {
     renderer.initialize(options);
     
     // Set the view parameters
-    this.view.level = mapSource.maxLevel;
+    this.view.level = mapSource.minLevel;
     this.view.maxLevel = mapSource.maxLevel;
     this.view.minLevel = mapSource.minLevel;
   }.bind(this));
@@ -67,9 +67,7 @@ $.Viewer = function(options) {
     // To do: Let the TiledMap loader handle the translation from 0..x to 13..8
     var zoomFactor = 100 / this.view.zoom;
     // Translate to a zoom level (0 = 100%, 1 = 50%, etc.
-    var scaleFactor = Math.log(zoomFactor) / Math.log(2);
-    // Translate that to the ranges of the DZ.
-    this.view.level = Math.round(this.view.maxLevel - scaleFactor);
+    this.view.level = Math.round(Math.log(zoomFactor) / Math.log(2));
     
     this.view.level = Math.range(this.view.level, this.view.minLevel, this.view.maxLevel);
 
@@ -99,14 +97,14 @@ $.Viewer = function(options) {
   }
   
   this.render = function() {
-    for (var i = 0; i <= this.view.level; i++) {
-      this.element.querySelectorAll('.level' + i).forEach(function(element, index, list){
-        element.style.display = 'block';
-      });
-    }
-    for (var i = this.view.level + 1; i <= this.view.maxLevel; i++) {
+    for (var i = 0; i < this.view.level; i++) {
       this.element.querySelectorAll('.level' + i).forEach(function(element, index, list){
         element.style.display = 'none';
+      });
+    }
+    for (var i = this.view.level; i <= this.view.maxLevel; i++) {
+      this.element.querySelectorAll('.level' + i).forEach(function(element, index, list){
+        element.style.display = 'block';
       });
     }
     tiledMap.getTiles(this.view, renderer.renderTile);

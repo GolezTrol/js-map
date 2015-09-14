@@ -10,8 +10,9 @@ $.TiledMapDeepZoom = function() {
     // Should be read from 'efteling_plattegrond.xml', which should be passed in source.
     $.setProperties(this.source,
       {
-        maxLevel: 13,
-        minLevel: 8,
+        internalLevels: 13,
+        maxLevel: 4,
+        minLevel: 0,
         folder: 'efteling_plattegrond_files',
         tileSize: 255,
         overlap: 1,
@@ -28,7 +29,8 @@ $.TiledMapDeepZoom = function() {
   };
   
   this.getTilePath = function(source, level, x, y) {
-    return source.folder + '/' + level + '/' + x + '_' + y + '.' + source.format;
+    var levelFolder = source.internalLevels - level;
+    return source.folder + '/' + levelFolder + '/' + x + '_' + y + '.' + source.format;
   }.bind(this, this.source);
   
   this.getTiles = function(view, callback) {
@@ -36,7 +38,7 @@ $.TiledMapDeepZoom = function() {
     var factor =  100.0 / view.zoom;
     var level = view.level;
     
-    var scaleFactor = Math.pow(2, this.source.maxLevel - view.level);
+    var scaleFactor = Math.pow(2, view.level);
     
     var tileSize = this.source.tileSize * scaleFactor;
     var imageSize = this.source.imageSize * scaleFactor;

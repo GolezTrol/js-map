@@ -25,11 +25,10 @@ $.ImageRenderer = function() {
       var s = tile.image.style;
       s.width = tile.width + 'px';
       s.height = tile.height + 'px';
-      s.zIndex = tile.level;
+      s.zIndex = 0 - tile.level;
       s.position = 'absolute';
       s.left = tile.x + 'px';
       s.top = tile.y + 'px';
-      s.zIndex = tile.level;
       
       this.tileLayer.appendChild(tile.image);
     }.bind(this));
