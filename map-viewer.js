@@ -23,8 +23,8 @@ $.Viewer = function(options) {
   // Give them at least the style required to make it work well
   options.element.style.overflow = 'hidden';
   layers.style.transformOrigin = '0 0';
-
   
+  var geo = null;
   var renderer = new $.ImageRenderer();
   var tiledMap = new $.TiledMapDeepZoom();
   
@@ -40,6 +40,8 @@ $.Viewer = function(options) {
     options.mapWidth = mapSource.width;
     options.mapHeight = mapSource.height;
     renderer.initialize(options);
+    
+    geo = new $.Geo(options);
     
     // Set the view parameters
     this.view.level = mapSource.minLevel;
